@@ -1,0 +1,60 @@
+// sends confirmation email with name and date
+function sendEmail(e) {
+  let named_values = e.namedValues
+  let values = e.values
+  let recipient = named_values['Email']
+  let name = named_values['Name']
+  let date = named_values['Orientation Session']
+
+// Email that will send on form submit
+  let htmlBody = '<p>Hi ' + name + ',</p>' + '<p>Thanks for signing up for the ' + date + ' orientation, we\'re excited to see you there!</p>'+'<p>If you\'d like to recieve a reminder you can RSVP to the event invite in <a href="https://calendar.google.com/calendar/u/0/r">Google Calendar</a>.</p>' + '<p>Orientations begin at 7pm and go for around an hour. If you have any questions in the meantime, feel free to email us at bikefarm@bikefarm.org.</p>'
+   
+  GmailApp.sendEmail(recipient, "Welcome to Bike Farm Volunteer Orientation!", '', {htmlBody: htmlBody})
+}
+
+// Adds calendar event invite to guest's calendar, they can choose to accept or decline. 
+function addGuest(e) {
+  let named_values = e.namedValues
+  let values = e.values
+  let recipient = named_values['Email']
+  let session = named_values['Orientation Session']
+  let calendarId = 'bikefarm.org_7lvgkot3q1go2qtj6i2ia9tfhs@group.calendar.google.com';
+  let calendar = CalendarApp.getCalendarById(calendarId);
+  if (calendar === null) {
+    // Calendar not found
+    console.log('Calendar not found', calendarId);
+    return;
+    }
+
+//  This bit sends the specific calendar invite based on the selected date.
+let dateAndTime;
+switch (session[0]) {
+  case 'April 27th':
+  // dateAndTime = 'googleEventId'; This must be updated to reflect each specific event.
+  // Go to edit event in google calendar, select the long string at the end of the URL.
+  // This long string must be decoded from Base64 (https://www.base64decode.org/)
+  // In some cases it may include a space and a bike farm email that must be deleted ex: 11j8po6pfjn6sigbjr5o47e3ku_20230428T020000Z bikefarm.org_7lvgkot3q1go2qtj6i2ia9tfhs@g --> 11j8po6pfjn6sigbjr5o47e3ku_20230428T020000Z
+    dateAndTime = '11j8po6pfjn6sigbjr5o47e3ku_20230428T020000Z';
+    break;
+  case 'May 25th':
+    dateAndTime = '11j8po6pfjn6sigbjr5o47e3ku_20230526T020000Z';
+    break;
+  case 'February 23rd':
+    dateAndTime = '11j8po6pfjn6sigbjr5o47e3ku_20230224T030000Z';
+    break;
+  case 'March 23rd':
+    dateAndTime = '11j8po6pfjn6sigbjr5o47e3ku_20230324T020000Z';
+    break;
+  default:
+    console.log('Session not recognized:', session);
+    dateAndTime = 'default_value';
+}
+//console.log('dateAndTime::', dateAndTime);
+  let event = calendar.getEventById(dateAndTime);
+  if (event === null) {
+    // Event not found
+    console.log('Event not found', dateAndTime);
+    return;
+    }
+  event.addGuest(recipient);
+  } 
